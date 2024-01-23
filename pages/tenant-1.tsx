@@ -1,8 +1,7 @@
 import { Inter } from "next/font/google";
 import Link from "next/link";
 
-import { useTranslation } from "next-i18next";
-
+import useScopedTranslation from "@/hooks/useScopedTranslation";
 import { useFetchTenantQuery } from "@/store/slices/api/tenantSlice";
 import { withCommonGetServerSideProps } from "@/utils/withCommonGetServerSideProps";
 
@@ -11,7 +10,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const getServerSideProps = withCommonGetServerSideProps(["auth", "tenant-1"], "academy.msaaqdev.com");
 
 export default function Tenant1() {
-  const { t } = useTranslation();
+  const { t } = useScopedTranslation();
   const { data } = useFetchTenantQuery();
 
   return (

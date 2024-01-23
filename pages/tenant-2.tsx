@@ -1,8 +1,7 @@
 import { Inter } from "next/font/google";
 import Link from "next/link";
 
-import { useTranslation } from "next-i18next";
-
+import useScopedTranslation from "@/hooks/useScopedTranslation";
 import { useFetchTenantQuery } from "@/store/slices/api/tenantSlice";
 import { withCommonGetServerSideProps } from "@/utils/withCommonGetServerSideProps";
 
@@ -12,7 +11,7 @@ export const getServerSideProps = withCommonGetServerSideProps(["auth", "tenant-
 
 export default function Tenant2() {
   const { data } = useFetchTenantQuery();
-  const { t } = useTranslation();
+  const { t } = useScopedTranslation();
 
   return (
     <main className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}>

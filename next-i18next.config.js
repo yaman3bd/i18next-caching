@@ -27,14 +27,28 @@ module.exports = {
             headers["X-Academy-Domain"] = getTenantHost(window.location.host);
           }
 
+          const group = ns.split("+").filter((n) => !n.includes("cacheKey$"));
+
+          const cacheKey = ns
+            .split("+")
+            .filter((n) => n.includes("cacheKey$"))
+            .find((n) => n)
+            ?.split("$")[1];
+
           await axios
             .get("http://localhost:3000/api/translations", {
-              params: { group: ns.split("+") },
+              params: { group },
               headers
             })
             .then((response) => {
               callback(null, {
-                data: response.data.data,
+                data: {
+                  ar: {
+                    [`cacheKey$${cacheKey}`]: {
+                      ...response.data.data["ar"]
+                    }
+                  }
+                },
                 status: 200
               });
             })

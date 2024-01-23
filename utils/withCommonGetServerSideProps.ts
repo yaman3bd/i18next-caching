@@ -14,6 +14,11 @@ interface ExtendedGetServerSidePropsContext extends GetServerSidePropsContext {
   host: string;
 }
 
+function transformUrl(url: string) {
+  // Replace dots and hyphens with underscores
+  return url.replace(/\./g, "_").replace(/-/g, "_");
+}
+
 export function withCommonGetServerSideProps(
   namespaces: string[],
   host: string,
@@ -45,7 +50,11 @@ export function withCommonGetServerSideProps(
     };
 
     const locales = {
-      ...(await serverSideTranslations(appLocale, ["common", ...namespaces], i18nextConfig))
+      ...(await serverSideTranslations(
+        appLocale,
+        [`cacheKey$${transformUrl(host)}`, "common", ...namespaces],
+        i18nextConfig
+      ))
     };
 
     if (getServerSidePropsFunc) {
