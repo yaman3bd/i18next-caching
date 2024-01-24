@@ -2,11 +2,6 @@ import { useTranslation } from "next-i18next";
 
 import { useFetchTenantQuery } from "@/store/slices/api/tenantSlice";
 
-function transformUrl(url: string) {
-  // Replace dots and hyphens with underscores
-  return url.replace(/\./g, "_").replace(/-/g, "_");
-}
-
 export default function useScopedTranslation() {
   const { data } = useFetchTenantQuery();
   const { t, ...rest } = useTranslation();
@@ -17,7 +12,7 @@ export default function useScopedTranslation() {
 
     const [ns, value] = key.split(":");
 
-    return t(`cacheKey$${transformUrl(data?.domain)}:${ns}.${value}`);
+    return t(`${ns}=${data.id}:${value}`);
   };
   return {
     t: scopedT,

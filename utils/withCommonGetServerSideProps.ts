@@ -14,11 +14,6 @@ interface ExtendedGetServerSidePropsContext extends GetServerSidePropsContext {
   host: string;
 }
 
-function transformUrl(url: string) {
-  // Replace dots and hyphens with underscores
-  return url.replace(/\./g, "_").replace(/-/g, "_");
-}
-
 export function withCommonGetServerSideProps(
   namespaces: string[],
   host: string,
@@ -41,6 +36,12 @@ export function withCommonGetServerSideProps(
 
     const tenant = fetchTenant.select()(store.getState())?.data;
 
+    if (!tenant) {
+      return {
+        notFound: true
+      };
+    }
+
     const tenant_locale = tenant?.locale;
     const appLocale = tenant_locale ?? locale ?? i18nextConfig.i18n.defaultLocale;
 
@@ -52,7 +53,7 @@ export function withCommonGetServerSideProps(
     const locales = {
       ...(await serverSideTranslations(
         appLocale,
-        [`cacheKey$${transformUrl(host)}`, "common", ...namespaces],
+        ["common", ...namespaces].map((ns) => `${ns}=${tenant.id}`),
         i18nextConfig
       ))
     };
