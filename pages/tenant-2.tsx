@@ -6,12 +6,12 @@ import { useFetchTenantQuery } from "@/store/slices/api/tenantSlice";
 import { withCommonGetServerSideProps } from "@/utils/withCommonGetServerSideProps";
 
 const inter = Inter({ subsets: ["latin"] });
-
-export const getServerSideProps = withCommonGetServerSideProps(["auth", "tenant-2"], "yaman.msaaqdev.com");
+const ns = ["common", "auth", "tenant-2"];
+export const getServerSideProps = withCommonGetServerSideProps(ns, "yaman.msaaqdev.com");
 
 export default function Tenant2() {
   const { data } = useFetchTenantQuery();
-  const { t } = useScopedTranslation();
+  const { t } = useScopedTranslation(ns);
 
   return (
     <main className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}>

@@ -1,19 +1,50 @@
+import { useCallback, useMemo } from "react";
+
 import { useTranslation } from "next-i18next";
 
 import { useFetchTenantQuery } from "@/store/slices/api/tenantSlice";
 
-export default function useScopedTranslation() {
-  const { data } = useFetchTenantQuery();
-  const { t, ...rest } = useTranslation();
-  const scopedT = (key: string) => {
-    if (!data) {
-      return t(key);
-    }
+export default function useScopedTranslation(ns: string[]) {
+  const { data, isFetching, isError, refetch } = useFetchTenantQuery();
 
-    const [ns, value] = key.split(":");
+  // If data is not available, and it's still fetching, throw a promise to wait for the data.
+  if (!data && isFetching) {
+    throw new Promise((resolve) => {
+      const checkData = setInterval(() => {
+        if (data) {
+          clearInterval(checkData);
+          resolve(null);
+        }
+      }, 1000);
 
-    return t(`${ns}=${data.id}:${value}`);
-  };
+      // Clear interval on component unmount
+      return () => {
+        clearInterval(checkData);
+      };
+    });
+  }
+  // If there is an error, throw refetch to try again.
+  if (isError) {
+    throw refetch();
+  }
+
+  const scopedNS = useMemo<Array<string>>(() => ns.map((n) => `${n}=${data?.id}`), [ns, data?.id]);
+
+  const { t, ...rest } = useTranslation(scopedNS);
+
+  const scopedT = useCallback(
+    (key: string) => {
+      if (!data) {
+        return t(key);
+      }
+
+      const [ns, value] = key.split(":");
+
+      return t(`${ns}=${data.id}:${value}`);
+    },
+    [data, t]
+  );
+
   return {
     t: scopedT,
     ...rest
