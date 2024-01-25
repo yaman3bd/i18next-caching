@@ -1,3 +1,10 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": "next/core-web-vitals",
+  "plugins": [
+    "custom-rules"
+  ],
+  "rules": {
+    "no-console": "error",
+    "custom-rules/pizza-reserved": "error"
+  }
 }
