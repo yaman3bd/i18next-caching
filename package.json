@@ -40,7 +40,6 @@
     "tailwindcss": "3.3.2",
     "typescript": "5.0.4",
     "eslint": "8.41.0",
-    "eslint-config-next": "13.4.3",
-    "eslint-plugin-custom-rules": "file:eslint-custom-rules"
+    "eslint-config-next": "13.4.3"
   }
 }

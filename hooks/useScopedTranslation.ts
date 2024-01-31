@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from "react";
 
+import { TOptions } from "i18next";
 import { useTranslation } from "next-i18next";
 
 import { useFetchTenantQuery } from "@/store/slices/api/tenantSlice";
@@ -33,14 +34,19 @@ export default function useScopedTranslation(ns: string[]) {
   const { t, ...rest } = useTranslation(scopedNS);
 
   const scopedT = useCallback(
-    (key: string) => {
+    (key: string, tOptions?: TOptions) => {
       if (!data) {
         return t(key);
       }
 
       const [ns, value] = key.split(":");
+      const tKey = `${ns}=${data.id}:${value}`;
 
-      return t(`${ns}=${data.id}:${value}`);
+      if (tOptions) {
+        return t(tKey, tOptions);
+      }
+
+      return t(tKey);
     },
     [data, t]
   );
