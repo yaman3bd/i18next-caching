@@ -3,6 +3,35 @@ const MultiLoadBackendAdapter = require("i18next-multiload-backend-adapter/cjs")
 const { axios, getTenantHost } = require("./lib/axios");
 const IS_CLIENT = typeof window !== "undefined";
 
+function addPrefixToObject(originalObj, scope) {
+  //whatever the logic is
+  // Deep copy the original object
+  const newObj = JSON.parse(JSON.stringify(originalObj));
+
+  // Loop over each language
+  for (const lang in newObj) {
+    if (newObj.hasOwnProperty(lang)) {
+      const langObj = newObj[lang];
+
+      // Loop over each namespace within the language
+      for (const namespace in langObj) {
+        if (langObj.hasOwnProperty(namespace)) {
+          // Add the scope to the namespace
+          const scopedNamespace = namespace + scope;
+
+          // Update the object with the new property
+          langObj[scopedNamespace] = langObj[namespace];
+
+          // Optional: You can delete the old property if needed
+          delete langObj[namespace];
+        }
+      }
+    }
+  }
+
+  return newObj;
+}
+
 module.exports = {
   i18n: {
     locales: ["ar", "en"],
@@ -27,14 +56,19 @@ module.exports = {
             headers["X-Academy-Domain"] = getTenantHost(window.location.host);
           }
 
+          const groupArr = ns.split("+");
+          const group = groupArr.map((n) => n.split("=")[0]);
+
+          const cacheKey = groupArr[0]?.split("=")[1];
+
           await axios
             .get("http://localhost:3000/api/translations", {
-              params: { group: ns.split("+") },
+              params: { group },
               headers
             })
             .then((response) => {
               callback(null, {
-                data: response.data.data,
+                data: addPrefixToObject(response.data.data, `=${cacheKey}`),
                 status: 200
               });
             })

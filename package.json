@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:hooks": "eslint ./hooks",
     "types:check": "tsc --skipLibCheck --noEmit",
     "format": "prettier --write \"**/*.{css,js,json,jsx,ts,tsx}\"",
     "lint:all": "npm run format && npm run types:check && npm run lint"
