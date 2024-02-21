@@ -3,44 +3,40 @@ import { useCallback, useMemo } from "react";
 import { TOptions } from "i18next";
 import { useTranslation } from "next-i18next";
 
-import { useFetchTenantQuery } from "@/store/slices/api/tenantSlice";
+import { useAppSelector } from "@/hooks/redux";
+import { getTenantHost } from "@/lib/axios";
+import { AppSliceStateType } from "@/store/slices/app-slice";
+import { IS_CLIENT } from "@/utils";
 
 export default function useScopedTranslation(ns: string[]) {
-  const { data, isFetching, isError, refetch } = useFetchTenantQuery();
+  const { tenantHost } = useAppSelector<AppSliceStateType>((state) => state.app);
 
-  // If data is not available, and it's still fetching, throw a promise to wait for the data.
-  if (!data && isFetching) {
-    throw new Promise((resolve) => {
-      const checkData = setInterval(() => {
-        if (data) {
-          clearInterval(checkData);
-          resolve(null);
-        }
-      }, 1000);
+  const host = useMemo<string>(() => {
+    if (!tenantHost && IS_CLIENT) {
+      return getTenantHost(window.location.host);
+    } else {
+      return tenantHost;
+    }
+  }, [tenantHost]);
 
-      // Clear interval on component unmount
-      return () => {
-        clearInterval(checkData);
-      };
-    });
-  }
-  // If there is an error, throw refetch to try again.
-  if (isError) {
-    throw refetch();
-  }
-
-  const scopedNS = useMemo<Array<string>>(() => ns.map((n) => `${n}=${data?.id}`), [ns, data?.id]);
+  const scopedNS = useMemo<Array<string>>(() => {
+    if (!host) {
+      return ns;
+    } else {
+      return ns.map((n) => `${n}=${host.replace(/[^a-zA-Z0-9]/g, "_")}`);
+    }
+  }, [ns, host]);
 
   const { t, ...rest } = useTranslation(scopedNS);
 
   const scopedT = useCallback(
     (key: string, tOptions?: TOptions) => {
-      if (!data) {
+      if (!host) {
         return t(key);
       }
 
       const [ns, value] = key.split(":");
-      const tKey = `${ns}=${data.id}:${value}`;
+      const tKey = `${ns}=${host.replace(/[^a-zA-Z0-9]/g, "_")}:${value}`;
 
       if (tOptions) {
         return t(tKey, tOptions);
@@ -48,7 +44,7 @@ export default function useScopedTranslation(ns: string[]) {
 
       return t(tKey);
     },
-    [data, t]
+    [host, t]
   );
 
   return {

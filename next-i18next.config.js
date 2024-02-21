@@ -59,7 +59,7 @@ module.exports = {
           const groupArr = ns.split("+");
           const group = groupArr.map((n) => n.split("=")[0]);
 
-          const cacheKey = groupArr[0]?.split("=")[1];
+          const cacheKey = headers["X-Academy-Domain"].replace(/[^a-zA-Z0-9]/g, "_");
 
           await axios
             .get("http://localhost:3000/api/translations", {

@@ -53,7 +53,7 @@ export function withCommonGetServerSideProps(
     const locales = {
       ...(await serverSideTranslations(
         appLocale,
-        namespaces.map((ns) => `${ns}=${tenant.id}`),
+        namespaces.map((ns) => `${ns}=${host.replace(/[^a-zA-Z0-9]/g, "_")}`),
         i18nextConfig
       ))
     };
